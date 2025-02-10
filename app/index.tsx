@@ -1,10 +1,18 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from 'expo-image'
+import { useRouter } from 'expo-router';
 
 const AppLogo = require('@/assets/images/refrig_logo.png')
 const kakaoLogo = require('@/assets/images/logo_kakaotalk.png')
 
 export default function Index() {
+  const router = useRouter();
+
+  const handleLogin = () => {
+    // TODO : 로그인 로직 추가
+    router.replace("/main");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.loginBox}>
@@ -14,7 +22,7 @@ export default function Index() {
         <Text style={styles.mainText}>우리집 냉장고를 스마트하게 관리하세요!</Text>
         {/* 소셜 로그인 버튼 */}
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.button}>
+          <Pressable style={styles.button} onPress={handleLogin}>
             <Image source={kakaoLogo} style={styles.loginImage} />
             <Text>카카오톡으로 로그인</Text>
           </Pressable>
