@@ -60,7 +60,7 @@ export default function Index() {
         <View style={styles.buttonContainer}>
           <Pressable style={styles.button} onPress={handleLogin}>
             <Image source={kakaoLogo} style={styles.loginImage} />
-            <Text>카카오톡으로 로그인</Text>
+            <Text style={styles.buttonText}>카카오톡으로 로그인</Text>
           </Pressable>
         </View>
       </View>
@@ -77,19 +77,19 @@ const styles = StyleSheet.create({
   },
   loginBox: {
     width: 300,
-    padding: 20,
+    padding: 24,
     backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 12,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 6,
   },
   mainText: {
-    fontSize: 16,
-    marginTop: 20
+    fontSize: 15,
+    marginTop: 40
   },
   image: {
     width: 200,
@@ -109,14 +109,24 @@ const styles = StyleSheet.create({
     padding: 3,
   },
   button: {
-    borderRadius: 5,
+    borderRadius: 8,
     width: "100%",
-    padding: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     flexDirection: "row",
-    gap: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#ccc",
-  }
+    backgroundColor: "#FEE500", // 카카오톡 노란색
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3, // 안드로이드 그림자 효과
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#3C1E1E", //
+    marginLeft: 8, //
+  },
 })
