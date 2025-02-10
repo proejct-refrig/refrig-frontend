@@ -22,13 +22,20 @@ const styles = StyleSheet.create({
   },
   loginBox: {
     width: 300,
-    height: 600,
     padding: 20,
     backgroundColor: "#fff",
+    borderRadius: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   image: {
-    width: 320,
-    height: 440,
-    borderRadius: 18,
+    width: 80,
+    height: 80,
+    marginBottom: 15,
+    resizeMode: "contain"
   },
 })
