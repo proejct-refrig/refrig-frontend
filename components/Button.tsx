@@ -1,28 +1,24 @@
 import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, ViewStyle } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 interface ButtonProps {
-  imageSource: ImageSourcePropType;
+  iconName: keyof typeof FontAwesome5.glyphMap;
   onPress: () => void;
   style?: ViewStyle;
 }
 
-const Button: React.FC<ButtonProps> = ({ imageSource, onPress, style }) => {
+const Button: React.FC<ButtonProps> = ({ iconName, onPress, style }) => {
   return (
-    <Pressable style={[styles.button, style]} onPress={onPress}>
-      <Image source={imageSource} style={styles.image}></Image>
+    <Pressable style={[ style ]} onPress={onPress}>
+      <FontAwesome5 name={iconName} size={24} color="#3A3A3A" solid={false} />
     </Pressable>
   );
 };
 
-
 const styles = StyleSheet.create({
-  button: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
   image: {
-    width: 50, // 기본 이미지 크기
-    height: 50,
+    width: 20,
+    height: 20,
     resizeMode: "contain",
   },
 });
