@@ -14,9 +14,12 @@ export default function RootLayout() {
           name="main/index" 
           options={{ 
             headerShown: true,
-            header: () => <Header />, // ✅ 커스텀 헤더 사용
+            header: () => <Header />
           }} 
         />
+
+        {/* ✅ 하단 네비게이션 (Tabs) 추가 */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </Provider>
   );
