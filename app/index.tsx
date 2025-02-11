@@ -99,6 +99,11 @@ export default function Index(): JSX.Element {
     }
   }, [response]);
 
+  // 임시로 메인페이지 보내는 코드
+  const tempFunction = (): void => {
+    router.replace("/main");
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.loginBox}>
@@ -107,7 +112,7 @@ export default function Index(): JSX.Element {
         </Animated.View>
         <Text style={styles.mainText}>우리집 냉장고를 스마트하게 관리하세요!</Text>
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.button} onPress={() => promptAsync()}>
+          <Pressable style={styles.button} onPress={() => tempFunction()}>
             <Image source={kakaoLogo} style={styles.loginImage} />
             <Text style={styles.buttonText}>카카오톡으로 로그인</Text>
           </Pressable>
