@@ -13,3 +13,18 @@ export const sendTokenToBackend = async (accessToken: string): Promise<string | 
     return null;
   }
 }
+
+export const fetchUserInfo = async (jwt: string): Promise<any | null> => {
+  try {
+    const response = await axios.get("https://your-backend.com/user/me", {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log("사용자 정보 가져오기 실패", error);
+    return null;
+  }
+}
