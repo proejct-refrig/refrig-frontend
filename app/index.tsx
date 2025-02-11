@@ -1,39 +1,40 @@
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from "react-native";
-import { Image } from 'expo-image'
-import { useRouter } from 'expo-router';
-import { useEffect, useRef } from 'react';
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { useEffect, useRef } from "react";
 import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session"
-import { storeJWT } from "@/app/auth/token";
-import { sendTokenToBackend } from "@/app/auth/api";
+import * as AuthSession from "expo-auth-session";
+import { getJWT, storeJWT } from "@/app/auth/token";
+import { fetchUserInfo, sendTokenToBackend } from "@/app/auth/api";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, setLoading, setToken, setUser } from "./store";
 
-const AppLogo = require('@/assets/images/refrig_logo.png')
-const kakaoLogo = require('@/assets/images/logo_kakaotalk.png')
+const AppLogo = require("@/assets/images/refrig_logo.png");
+const kakaoLogo = require("@/assets/images/logo_kakaotalk.png");
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Index(): JSX.Element {
   const router = useRouter();
-  const rotateAnim = useRef<Animated.Value>(new Animated.Value(0)).current;
+  const dispatch = useDispatch();
+  const { token, isLoading } = useSelector((state: RootState) => state.user);
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
-  // 로고 애니메이션 로직
+  // ✅ 로고 애니메이션 (별도 함수로 분리)
   useEffect(() => {
-    const startRotation = (): void => {
+    const startRotation = () => {
       Animated.timing(rotateAnim, {
-        toValue: 1, // 360도 회전
-        duration: 3000, // 3초 동안 회전
+        toValue: 1,
+        duration: 3000,
         easing: Easing.linear,
         useNativeDriver: true,
       }).start(() => {
-        // 회전이 끝나면 0도로 복귀
         rotateAnim.setValue(0);
-        
-        // 2초 대기 후 다시 회전 시작
         setTimeout(startRotation, 3000);
       });
     };
 
-    startRotation(); // 애니메이션 시작
+    startRotation();
   }, []);
 
   const rotateStyle = {
@@ -47,72 +48,66 @@ export default function Index(): JSX.Element {
     ],
   };
 
-  // 카카오 로그인 로직
-  // here : 카카오 OAuth2 엔드포인트 직접 설정 (고정이지만 변경되었을 수 있기에 공식문서 확인해야함)
+  // ✅ 카카오 OAuth2 엔드포인트 설정
   const discovery = {
     authorizationEndpoint: "https://kauth.kakao.com/oauth/authorize",
     tokenEndpoint: "https://kauth.kakao.com/oauth/token",
-  }
+  };
 
-  // here: 개발자 콘솔에서 체크
+  // ✅ 카카오 로그인 요청 설정
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: "카카오 REST API 키", // 카카오 개발자 콘솔에서 발급받은 REST API 키 입력
-      redirectUri: AuthSession.makeRedirectUri({
-        scheme: "myapp", // here : 카카오 개발자센터에 Redirect URI에 따라서 app.json의 scheme 달라짐!
-      }),
+      clientId: "카카오 REST API 키",
+      redirectUri: AuthSession.makeRedirectUri({ scheme: "myapp" }),
       responseType: "code",
-      /*
-        "profile"	사용자의 프로필 정보 (닉네임, 프로필 이미지)
-        "account_email"	사용자의 이메일 주소
-        "birthday"	사용자의 생년월일
-        "gender"	사용자의 성별 정보
-        "age_range"	사용자의 연령대 (예: 20~30대)
-        "phone_number"	사용자의 전화번호
-        "friends"	사용자의 카카오톡 친구 목록
-        "talk_message"	카카오톡 메시지 전송 권한
-       */
-      scopes: ["profile", "account_email"], // here: 로그인시 필요한 권한 체크 누나랑 협의 
+      scopes: ["profile", "account_email"],
     },
     discovery
   );
 
+  // ✅ 로그인 상태 확인 및 로그인 처리 통합
   useEffect(() => {
-    if (response?.type === "success" && response.params.code) {
-      const authorizationCode = response.params.code;
+    const handleLogin = async (authorizationCode?: string) => {
+      dispatch(setLoading(true));
 
-      if (authorizationCode) {
-        console.log("카카오 로그인 인증 코드:", authorizationCode);
-      } else {
-        console.log("인증코드 안왔음!")
+      let jwt = token || (await getJWT());
+
+      if (!jwt && authorizationCode) {
+        jwt = await sendTokenToBackend(authorizationCode);
+        if (jwt) await storeJWT(jwt);
       }
 
-      // 백엔드로 인증코드 전달하여 액세스 토큰 발급
-      sendTokenToBackend(authorizationCode).then((jwt: string | null) => {
-        if (jwt) {
-          storeJWT(jwt); // JWT 저장(자동 로그인용)
+      if (jwt) {
+        const user = await fetchUserInfo(jwt);
+        if (user) {
+          dispatch(setToken(jwt));
+          dispatch(setUser(user));
           router.replace("/main");
+          return;
         }
-      });
-    }
-  }, [response])
+      }
 
-  const handleLogin = () => {
-    promptAsync();
-  }
+      dispatch(setToken(null));
+      router.replace("/");
+      dispatch(setLoading(false));
+    };
+
+    if (response?.type === "success" && response.params.code) {
+      handleLogin(response.params.code);
+    } else if (!token) {
+      handleLogin();
+    }
+  }, [response]);
 
   return (
     <View style={styles.container}>
       <View style={styles.loginBox}>
-        {/* 로고 */}
         <Animated.View style={rotateStyle}>
-          <Image source={AppLogo} style={styles.image}/>
+          <Image source={AppLogo} style={styles.image} />
         </Animated.View>
-        {/* 로그인 제목 */}
         <Text style={styles.mainText}>우리집 냉장고를 스마트하게 관리하세요!</Text>
-        {/* 소셜 로그인 버튼 */}
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.button} onPress={handleLogin}>
+          <Pressable style={styles.button} onPress={() => promptAsync()}>
             <Image source={kakaoLogo} style={styles.loginImage} />
             <Text style={styles.buttonText}>카카오톡으로 로그인</Text>
           </Pressable>
@@ -127,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FAFAFA"
+    backgroundColor: "#FAFAFA",
   },
   loginBox: {
     width: 300,
@@ -143,17 +138,17 @@ const styles = StyleSheet.create({
   },
   mainText: {
     fontSize: 15,
-    marginTop: 40
+    marginTop: 40,
   },
   image: {
     width: 200,
     height: 200,
-    resizeMode: "contain"
+    resizeMode: "contain",
   },
   loginImage: {
     width: 30,
     height: 30,
-    borderRadius: 5
+    borderRadius: 5,
   },
   buttonContainer: {
     marginVertical: 16,
@@ -170,17 +165,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FEE500", // 카카오톡 노란색
+    backgroundColor: "#FEE500",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 3, // 안드로이드 그림자 효과
+    elevation: 3,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#3C1E1E", //
-    marginLeft: 8, //
+    color: "#3C1E1E",
+    marginLeft: 8,
   },
-})
+});
