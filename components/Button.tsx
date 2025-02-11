@@ -1,8 +1,8 @@
 import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, TextStyle, ViewStyle } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 interface ButtonProps {
-  iconName: keyof typeof FontAwesome5.glyphMap;
+  iconName: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
   style?: ViewStyle;
 }
@@ -10,7 +10,7 @@ interface ButtonProps {
 const Button: React.FC<ButtonProps> = ({ iconName, onPress, style }) => {
   return (
     <Pressable style={[ style ]} onPress={onPress}>
-      <FontAwesome5 name={iconName} size={24} color="#3A3A3A" solid={false} />
+      <Ionicons name={iconName} size={28} color="#3A3A3A" />
     </Pressable>
   );
 };

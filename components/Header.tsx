@@ -7,7 +7,7 @@ const logo = require("../assets/images/cute-refrig.png");
 
 const Header: React.FC = () => {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView>
       <View style={styles.header}>
         {/* here: 추후에 냉장고, 살림 카테고리로 나눌거임 */}
         <View style={styles.categoryContainer}>
@@ -16,9 +16,9 @@ const Header: React.FC = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button iconName="bars" onPress={() => console.log("메뉴 버튼 클릭됨")} />
-          <Button iconName="search" onPress={() => console.log("검색 버튼 클릭됨")} />
-          <Button iconName="bell" onPress={() => console.log("알림 버튼 클릭됨")} />
+          <Button iconName="menu-outline" onPress={() => console.log("메뉴 버튼 클릭됨")} />
+          <Button iconName="search-outline" onPress={() => console.log("검색 버튼 클릭됨")} />
+          <Button iconName="notifications-outline" onPress={() => console.log("알림 버튼 클릭됨")} />
         </View>
       </View>
     </SafeAreaView>
@@ -26,9 +26,6 @@ const Header: React.FC = () => {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    //backgroundColor: "#FEE500",
-  },
   header: {
     height: 70,
     flexDirection: "row",
@@ -44,7 +41,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 25,
+    gap: 20,
     marginTop: 25,
   },
   categoryContainer: {
