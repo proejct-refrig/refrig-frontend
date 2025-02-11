@@ -66,38 +66,38 @@ export default function Index(): JSX.Element {
   );
 
   // ✅ 로그인 상태 확인 및 로그인 처리 통합
-  useEffect(() => {
-    const handleLogin = async (authorizationCode?: string) => {
-      dispatch(setLoading(true));
+  // useEffect(() => {
+  //   const handleLogin = async (authorizationCode?: string) => {
+  //     dispatch(setLoading(true));
 
-      let jwt = token || (await getJWT());
+  //     let jwt = token || (await getJWT());
 
-      if (!jwt && authorizationCode) {
-        jwt = await sendTokenToBackend(authorizationCode);
-        if (jwt) await storeJWT(jwt);
-      }
+  //     if (!jwt && authorizationCode) {
+  //       jwt = await sendTokenToBackend(authorizationCode);
+  //       if (jwt) await storeJWT(jwt);
+  //     }
 
-      if (jwt) {
-        const user = await fetchUserInfo(jwt);
-        if (user) {
-          dispatch(setToken(jwt));
-          dispatch(setUser(user));
-          router.replace("/main");
-          return;
-        }
-      }
+  //     if (jwt) {
+  //       const user = await fetchUserInfo(jwt);
+  //       if (user) {
+  //         dispatch(setToken(jwt));
+  //         dispatch(setUser(user));
+  //         router.replace("/main");
+  //         return;
+  //       }
+  //     }
 
-      dispatch(setToken(null));
-      router.replace("/");
-      dispatch(setLoading(false));
-    };
+  //     dispatch(setToken(null));
+  //     router.replace("/");
+  //     dispatch(setLoading(false));
+  //   };
 
-    if (response?.type === "success" && response.params.code) {
-      handleLogin(response.params.code);
-    } else if (!token) {
-      handleLogin();
-    }
-  }, [response]);
+  //   if (response?.type === "success" && response.params.code) {
+  //     handleLogin(response.params.code);
+  //   } else if (!token) {
+  //     handleLogin();
+  //   }
+  // }, [response]);
 
   // 임시로 메인페이지 보내는 코드
   const tempFunction = (): void => {
