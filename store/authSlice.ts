@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { setToken } from '@/app/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AuthState {
