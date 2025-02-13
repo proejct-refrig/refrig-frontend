@@ -1,12 +1,13 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { FC } from "react";
+import Header from '@/components/Header';
 
 const TabsLayout: FC = () => {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // ✅ 개별 화면에서 헤더 설정
+        header: () => <Header />, // ✅ 개별 화면에서 헤더 설정
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: "#F8F8F8",
@@ -18,7 +19,7 @@ const TabsLayout: FC = () => {
         tabBarInactiveTintColor: "#A0A0A0",
       }}
     >
-      {/* ✅ 메인 페이지를 'main/index.tsx'로 변경 */}
+      {/* ✅ 메인 페이지*/}
       <Tabs.Screen
         name="index"
         options={{

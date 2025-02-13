@@ -3,12 +3,7 @@ import { Image } from "expo-image";
 import { useRouter, useSegments } from "expo-router";
 import { FC, useEffect, useRef } from "react";
 import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
-import { getJWT, storeJWT } from "@/app/auth/token";
-import { fetchUserInfo, sendTokenToBackend } from "@/app/auth/api";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, setLoading, setToken, setUser } from "./store";
-import { handleLogin } from '@/utils/auth';
 
 const AppLogo = require("@/assets/images/refrig_logo.png");
 const kakaoLogo = require("@/assets/images/logo_kakaotalk.png");
@@ -17,9 +12,8 @@ WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen: FC = () => {
   const router = useRouter();
-  const segments = useSegments(); // 현재 url 경로 가져옴
+  const segment = useSegments();
   const dispatch = useDispatch();
-  const { token, isLoading } = useSelector((state: RootState) => state.user);
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   // ✅ 로고 애니메이션
@@ -50,43 +44,10 @@ const LoginScreen: FC = () => {
     ],
   };
 
-  // // ✅ 카카오 OAuth2 엔드포인트 설정
-  // const discovery = {
-  //   authorizationEndpoint: "https://kauth.kakao.com/oauth/authorize",
-  //   tokenEndpoint: "https://kauth.kakao.com/oauth/token",
-  // };
-
-  // // ✅ 카카오 로그인 요청 설정
-  // const [request, response, promptAsync] = AuthSession.useAuthRequest(
-  //   {
-  //     clientId: "카카오 REST API 키",
-  //     redirectUri: AuthSession.makeRedirectUri({ scheme: "myapp" }),
-  //     responseType: "code",
-  //     scopes: ["profile", "account_email"],
-  //   },
-  //   discovery
-  // );
-
-  // // ✅ 로그인 상태 확인 및 로그인 처리 통합
-  // useEffect(() => {
-  //   if (response?.type === 'success' && response.params.code) {
-  //     handleLogin(dispatch, router, response.params.code);
-  //   }
-  // }, [response]);
-
-  // // ✅ 🚀 Redux에 `token`이 있으면 로그인 페이지를 랜더링하지 않고 바로 이동!
-  // useEffect(() => {
-  //   if (token && segments[0] === 'login') {
-  //     router.replace("/"); // ✅ 로그인 상태면 즉시 이동
-  //     return;
-  //   }
-  // }, [token, segments]);
-
-  // 임시로 메인페이지 보내는 코드
+  // ✅ 임시 로그인 (테스트용)
   const fakeLogin = (): void => {
-    dispatch(setToken("fake_token")); // 임시 가짜 토큰 저장
-    router.replace("/");
-  }
+    router.replace("/(tabs)");
+  };
 
   return (
     <View style={styles.container}>
