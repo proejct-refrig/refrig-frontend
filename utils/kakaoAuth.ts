@@ -27,5 +27,3 @@ export const sendCodetoBackend = async (code: string): Promise<string | null> =>
     return null;
   }
 };
-
-// 🔸 서버로부터 카카오 사용자 정보 요청
