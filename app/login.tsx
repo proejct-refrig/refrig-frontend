@@ -1,9 +1,8 @@
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { useRouter, useSegments } from "expo-router";
+import { useRouter } from "expo-router";
 import { FC, useEffect, useRef } from "react";
 import * as WebBrowser from "expo-web-browser";
-import { useDispatch, useSelector } from "react-redux";
 import * as AuthSession from 'expo-auth-session';
 import { sendCodetoBackend } from '../utils/kakaoAuth';
 
@@ -14,8 +13,6 @@ WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen: FC = () => {
   const router = useRouter();
-  const segment = useSegments();
-  const dispatch = useDispatch();
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
   // ✅ 로고 애니메이션
@@ -56,49 +53,45 @@ const LoginScreen: FC = () => {
     tokenEndpoint: 'https://kauth.kakao.com/oauth/token',
   };
 
-  const Login = () => {
-    const router = useRouter();
+  // ✅ Redirect URI 설정
+  const redirectUri = AuthSession.makeRedirectUri({
+    scheme: 'myapp',
+    path: 'redirect'
+  });
 
-    // ✅ Redirect URI 설정
-    const redirectUri = AuthSession.makeRedirectUri({
-      scheme: 'myapp',
-      path: 'redirect'
-    });
+  console.log('Redirect URI:', redirectUri);
 
-    console.log('Redirect URI:', redirectUri);
+  // ✅ 로그인 요청 생성
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId: KAKAO_REST_API_KEY,
+      redirectUri,
+      responseType: AuthSession.ResponseType.Code,
+    },
+    discovery
+  );
 
-    // ✅ 로그인 요청 생성
-    const [request, response, promptAsync] = AuthSession.useAuthRequest(
-      {
-        clientId: KAKAO_REST_API_KEY,
-        redirectUri,
-        responseType: AuthSession.ResponseType.Code,
-      },
-      discovery
-    );
+  // ✅ 로그인 응답 처리
+  useEffect(() => {
+    const processLogin = async ():Promise<void> => {
+      if (response?.type === 'success' && response.params.code) {
+        // here : code 확인
+        const code = response.params.code;
+        console.log('코드:', code);
 
-    // ✅ 로그인 응답 처리
-    useEffect(() => {
-      const processLogin = async ():Promise<void> => {
-        if (response?.type === 'success' && response.params.code) {
-          // here : code 확인
-          const code = response.params.code;
-          console.log('코드:', code);
+        // 백엔드로 코드전송 -> 유저 정보 반환
+        const userInfo = await sendCodetoBackend(code);
+        if (!userInfo) return;
+        
+        console.log('카카오 로그인 성공:', userInfo);
 
-          // 백엔드로 코드전송 -> 유저 정보 반환
-          const userInfo = await sendCodetoBackend(code);
-          if (!userInfo) return;
-          
-          console.log('카카오 로그인 성공:', userInfo);
+        // 로그인 성공시 홈으로 이동
+        router.replace('/(tabs)');
+      }
+    };
 
-          // 로그인 성공시 홈으로 이동
-          router.replace('/(tabs)');
-        }
-      };
-
-      processLogin();
-    }, [response])
-  }
+    processLogin();
+  }, [response])
 
   // 🔸 임시 로그인 (테스트용)
   const fakeLogin = (): void => {
@@ -113,7 +106,7 @@ const LoginScreen: FC = () => {
         </Animated.View>
         <Text style={styles.mainText}>우리집 냉장고를 스마트하게 관리하세요!</Text>
         <View style={styles.buttonContainer}>
-          <Pressable style={styles.button} onPress={() => fakeLogin()}>
+          <Pressable style={styles.button} onPress={() => promptAsync()}>
             <Image source={kakaoLogo} style={styles.loginImage} />
             <Text style={styles.buttonText}>카카오톡으로 로그인</Text>
           </Pressable>
